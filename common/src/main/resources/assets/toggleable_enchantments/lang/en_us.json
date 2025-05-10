@@ -1,0 +1,18 @@
+{
+  "key.toggleable_enchantments.open_gui": "Open Toggle Enchantments Menu",
+  "key.toggleable_enchantments.group_1": "Toggle Enchantment Group 1",
+  "key.toggleable_enchantments.group_2": "Toggle Enchantment Group 2",
+  "key.toggleable_enchantments.group_3": "Toggle Enchantment Group 3",
+  "key.toggleable_enchantments.group_4": "Toggle Enchantment Group 4",
+  "key.toggleable_enchantments.group_5": "Toggle Enchantment Group 5",
+  "key.toggleable_enchantments.group_6": "Toggle Enchantment Group 6",
+  "key.toggleable_enchantments.group_7": "Toggle Enchantment Group 7",
+  "key.toggleable_enchantments.group_8": "Toggle Enchantment Group 8",
+  "key.toggleable_enchantments.group_9": "Toggle Enchantment Group 9",
+  "toggleable_enchantments.enable": "§a§lEnabled %s on %s",
+  "toggleable_enchantments.disable": "§c§lDisabled %s on %s",
+  "container.toggleable_enchantments": "Toggle Enchantments",
+  "container.toggleable_enchantments.hotkey_group": "Hotkey Group",
+  "container.toggleable_enchantments.hotkey_group.help": "§7Scroll to Change",
+  "key.categories.toggleable_enchantments": "Toggleable Enchantments"
+}

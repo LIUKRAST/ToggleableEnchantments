@@ -1,0 +1,61 @@
+package net.liukrast.toggleable_enchantments.packet;
+
+import net.liukrast.toggleable_enchantments.TEConstants;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import org.lwjgl.system.NonnullDefault;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@NonnullDefault
+public record ToggleEnchantmentPacket(List<ResourceLocation> enchantment, EquipmentSlot slot) implements CustomPacketPayload {
+    public static final Type<ToggleEnchantmentPacket> PACKET_TYPE = new Type<>(TEConstants.id("toggle_enchantment"));
+    public static final StreamCodec<RegistryFriendlyByteBuf, ToggleEnchantmentPacket> CODEC = StreamCodec.ofMember(ToggleEnchantmentPacket::write, ToggleEnchantmentPacket::new);
+
+    public ToggleEnchantmentPacket(RegistryFriendlyByteBuf buf) {
+        this(buf.readCollection(ArrayList::new, ResourceLocation.STREAM_CODEC), fromInt(buf.readInt()));
+    }
+
+    public void write(RegistryFriendlyByteBuf buf) {
+        buf.writeCollection(enchantment, ResourceLocation.STREAM_CODEC);
+        buf.writeInt(toInt(slot));
+    }
+
+    @Override
+    public Type<? extends CustomPacketPayload> type() {
+        return PACKET_TYPE;
+    }
+
+    private static int toInt(EquipmentSlot slot) {
+        if(slot.getType() == EquipmentSlot.Type.HAND) return slot.getIndex();
+        return slot.getIndex() + 2;
+    }
+
+    public static EquipmentSlot fromInt(int value) {
+        return switch (value) {
+            case 1 -> EquipmentSlot.OFFHAND;
+            case 2 -> EquipmentSlot.FEET;
+            case 3 -> EquipmentSlot.LEGS;
+            case 4 -> EquipmentSlot.CHEST;
+            case 5 -> EquipmentSlot.HEAD;
+            default -> EquipmentSlot.MAINHAND;
+        };
+    }
+
+    public static void handle(ToggleEnchantmentPacket packet, Player ctx) {
+        var enchantRegistry = ctx.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+        var list = packet.enchantment.stream().map(e -> ((Holder<Enchantment>)enchantRegistry.getHolderOrThrow(ResourceKey.create(Registries.ENCHANTMENT, e)))).toList();
+        ItemStack stack = ctx.getItemBySlot(packet.slot);
+        if(!list.isEmpty()) TEConstants.toggleEnchantments(stack, list, ctx);
+    }
+}

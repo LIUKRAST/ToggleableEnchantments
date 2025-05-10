@@ -8,24 +8,26 @@
         "${mod_author}"
     ],
     "contact": {
-        "homepage": "https://fabricmc.net/",
-        "sources": "https://github.com/FabricMC/fabric-example-mod"
+        "sources": "https://github.com/LIUKRAST/ToggleableEnchantments"
     },
     "license": "${license}",
-    "icon": "${mod_id}.png",
+    "icon": "pack.png",
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "net.frozenblock.toggleable_enchantments.ToggleableEnchantments"
+        ],
+        "client": [
+            "net.frozenblock.toggleable_enchantments.ToggleableEnchantments"
         ]
     },
     "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "${mod_id}.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=${fabric_loader_version}",
         "fabric-api": "*",
+        "fabric-key-binding-api-v1": "*",
         "minecraft": "${minecraft_version}",
         "java": ">=${java_version}"
     },
