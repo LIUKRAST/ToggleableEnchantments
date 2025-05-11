@@ -27,7 +27,7 @@ public class ItemEnchantmentsMixin implements IFlagEnchantment {
     }
 
     @Override
-    public boolean toggleable_enchantments$setDisabled(boolean disabled) {
-        return this.toggleable_enchantments$disabled = disabled;
+    public void toggleable_enchantments$setDisabled(boolean disabled) {
+        this.toggleable_enchantments$disabled = disabled;
     }
 }
