@@ -18,7 +18,7 @@ public class ToggleableEnchantments implements ModInitializer, ClientModInitiali
         Set<KeyMapping> keyMappings = new HashSet<>();
         RegisterKeyMappings.register(keyMappings);
         keyMappings.forEach(KeyBindingHelper::registerKeyBinding);
-        ClientTickEvents.END_CLIENT_TICK.register(client -> TEConstants.onClientTick());
+        ClientTickEvents.END_CLIENT_TICK.register(client -> TEClient.onClientTick());
     }
 
     @Override

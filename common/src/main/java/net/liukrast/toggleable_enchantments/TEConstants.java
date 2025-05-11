@@ -1,14 +1,8 @@
 package net.liukrast.toggleable_enchantments;
 
-import net.liukrast.toggleable_enchantments.packet.ToggleEnchantmentPacket;
-import net.liukrast.toggleable_enchantments.platform.TEServices;
 import net.liukrast.toggleable_enchantments.registry.RegisterDataComponents;
-import net.liukrast.toggleable_enchantments.registry.RegisterKeyMappings;
-import net.liukrast.toggleable_enchantments.screen.TEScreen;
-import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
@@ -21,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 public class TEConstants {
     public static final String MOD_ID = "toggleable_enchantments";
@@ -30,32 +23,6 @@ public class TEConstants {
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
-    }
-
-    public static void onClientTick() {
-        final var mc = Minecraft.getInstance();
-        if(mc.player == null) return;
-        final var stack = mc.player.getMainHandItem();
-        while(RegisterKeyMappings.TOGGLEABLE_MENU.consumeClick()) {
-            if(!(mc.screen instanceof TEScreen)) {
-                if(!stack.isEmpty()) mc.setScreen(new TEScreen());
-            }
-        }
-        for(int i = 0; i < RegisterKeyMappings.GROUP_KEYS.size(); i++) {
-            var mapping = RegisterKeyMappings.GROUP_KEYS.get(i);
-            while(mapping.consumeClick()) {
-                int finalI = i+1;
-                var access = mc.player.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-                for(int k = 0; k < 6; k++) {
-                    var slot = ToggleEnchantmentPacket.fromInt(k);
-                    var stack1 = mc.player.getItemBySlot(slot);
-                    if(stack1.isEmpty()) continue;
-                    ItemEnchantments groups = stack1.getOrDefault(RegisterDataComponents.ENCHANTMENT_GROUPS, ItemEnchantments.EMPTY);
-                    List<ResourceLocation> list = groups.entrySet().stream().filter(entry -> entry.getIntValue() == finalI).map(holder -> access.getKey(holder.getKey().value())).filter(Objects::nonNull).toList();
-                    if(!list.isEmpty()) TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(list, slot));
-                }
-            }
-        }
     }
 
     public static void toggleEnchantments(ItemStack stack, List<Holder<Enchantment>> enchantments, @Nullable Player player) {
