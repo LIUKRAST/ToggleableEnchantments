@@ -11,7 +11,7 @@
         "sources": "https://github.com/LIUKRAST/ToggleableEnchantments"
     },
     "license": "${license}",
-    "icon": "pack.png",
+    "icon": "toggleable_enchantments.png",
     "environment": "*",
     "entrypoints": {
         "main": [

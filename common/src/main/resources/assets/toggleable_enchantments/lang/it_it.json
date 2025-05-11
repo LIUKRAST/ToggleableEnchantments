@@ -1,0 +1,18 @@
+{
+  "key.toggleable_enchantments.open_gui": "Apri Menu degli Incantamenti Attivabili",
+  "key.toggleable_enchantments.group_1": "Cicla Gruppo Enchant 1",
+  "key.toggleable_enchantments.group_2": "Cicla Gruppo Enchant 2",
+  "key.toggleable_enchantments.group_3": "Cicla Gruppo Enchant 3",
+  "key.toggleable_enchantments.group_4": "Cicla Gruppo Enchant 4",
+  "key.toggleable_enchantments.group_5": "Cicla Gruppo Enchant 5",
+  "key.toggleable_enchantments.group_6": "Cicla Gruppo Enchant 6",
+  "key.toggleable_enchantments.group_7": "Cicla Gruppo Enchant 7",
+  "key.toggleable_enchantments.group_8": "Cicla Gruppo Enchant 8",
+  "key.toggleable_enchantments.group_9": "Cicla Gruppo Enchant 9",
+  "toggleable_enchantments.enable": "§a§lAbilitato %s su %s",
+  "toggleable_enchantments.disable": "§c§lDisabilitato %s su %s",
+  "container.toggleable_enchantments": "Attiva Enchantments",
+  "container.toggleable_enchantments.hotkey_group": "Gruppo Tasto Rapido",
+  "container.toggleable_enchantments.hotkey_group.help": "§7Scorri per cambiare",
+  "key.categories.toggleable_enchantments": "Enchantments Attivabili"
+}
