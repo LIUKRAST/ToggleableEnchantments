@@ -27,7 +27,7 @@ public class TEClient {
             var mapping = RegisterKeyMappings.GROUP_KEYS.get(i);
             while(mapping.consumeClick()) {
                 int finalI = i+1;
-                var access = mc.player.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+                var access = mc.player.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
                 for(int k = 0; k < 6; k++) {
                     var slot = ToggleEnchantmentPacket.fromInt(k);
                     var stack1 = mc.player.getItemBySlot(slot);

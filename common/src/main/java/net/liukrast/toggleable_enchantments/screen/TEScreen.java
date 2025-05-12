@@ -9,6 +9,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 @NonnullDefault
 public class TEScreen extends Screen {
     public static final ResourceLocation TEXTURE = TEConstants.id("textures/gui/toggleable_enchantments.png");
+    public static final ResourceLocation BUTTON = TEConstants.id("toggle_button");
     public static final Component TITLE = Component.translatable("container.toggleable_enchantments");
 
     private static final List<Component> TOOLTIP = Arrays.asList(new Component[]{
@@ -44,7 +46,7 @@ public class TEScreen extends Screen {
         super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         int leftPos = (this.width- IMAGE_W)>>1;
         int topPos = (this.height- IMAGE_H)>>1;
-        guiGraphics.blit(TEXTURE, leftPos, topPos, 0, 0, IMAGE_W, IMAGE_H);
+        guiGraphics.blit(RenderType::guiTextured, TEXTURE, leftPos, topPos, 0, 0, IMAGE_W, IMAGE_H, 256, 256);
     }
 
     @Override
@@ -65,7 +67,16 @@ public class TEScreen extends Screen {
                 boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + i*12 + TOP_OFFSET && mouseY < topPos + i*12 + 8 + TOP_OFFSET;
                 guiGraphics.drawString(this.font, comp, leftPos + 8, topPos + i*12 + TOP_OFFSET, -1);
                 guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 130, topPos + i*12 + TOP_OFFSET, -1);
-                guiGraphics.blit(TEXTURE, leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET, topPos + i*12 + TOP_OFFSET, 176 + (hovered ? BUTTON_W : 0), enabled ? 0 : 8, BUTTON_W, 8);
+                guiGraphics.blitSprite(
+                        RenderType::guiTextured,
+                        BUTTON,
+                        32, 16,
+                        (hovered ? BUTTON_W : 0),
+                        enabled ? 0 : 8,
+                        leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET,
+                        topPos + i*12 + TOP_OFFSET,
+                        BUTTON_W, 8
+                );
             }
             i++;
         }
@@ -99,7 +110,7 @@ public class TEScreen extends Screen {
                 if(!hovered) continue;
                 var level1 = Minecraft.getInstance().level;
                 if(level1 == null) continue;
-                var access = level1.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+                var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
                 ResourceLocation id = access.getKey(holder.value());
                 if(id == null) continue;
                 TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(List.of(id), EquipmentSlot.MAINHAND));
@@ -126,7 +137,7 @@ public class TEScreen extends Screen {
                 if(!hovered) continue;
                 var level1 = Minecraft.getInstance().level;
                 if(level1 == null) continue;
-                var access = level1.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+                var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
                 ResourceLocation id = access.getKey(holder.value());
                 if(id == null) continue;
                 TEServices.PLATFORM.send2S(new ChangeGroupPacket(id, (int) Math.clamp(group + scrollY, 0, 9)));
