@@ -11,8 +11,8 @@ neoForge {
         accessTransformers.from(at.absolutePath)
     }
     parchment {
-        minecraftVersion = parchment_minecraft
-        mappingsVersion = parchment_version
+        minecraftVersion = parchment_version.split(":")[0]
+        mappingsVersion = parchment_version.split(":")[1]
     }
     runs {
         configureEach {
@@ -21,9 +21,6 @@ neoForge {
         }
         client {
             client()
-        }
-        data {
-            clientData()
         }
         server {
             server()

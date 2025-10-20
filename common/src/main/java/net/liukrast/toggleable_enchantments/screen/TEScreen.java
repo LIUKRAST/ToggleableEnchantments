@@ -14,7 +14,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EnchantmentTags;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -22,12 +22,12 @@ import it.unimi.dsi.fastutil.objects.Object2IntMap.Entry;
 import org.lwjgl.system.NonnullDefault;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @NonnullDefault
 public class TEScreen extends Screen {
-    public static final ResourceLocation TEXTURE = TEConstants.id("textures/gui/toggleable_enchantments.png");
-    public static final ResourceLocation BUTTON = TEConstants.id("toggle_button");
+    private static final ResourceLocation TEXTURE = TEConstants.id("textures/gui/toggleable_enchantments.png");
+    private static final ResourceLocation BUTTON = TEConstants.id("toggle_button");
+    private static final ResourceLocation SCROLLER = TEConstants.id("scroller");
     public static final Component TITLE = Component.translatable("container.toggleable_enchantments");
 
     private static final List<Component> TOOLTIP = Arrays.asList(new Component[]{
@@ -36,8 +36,12 @@ public class TEScreen extends Screen {
     });
 
     private static final int IMAGE_W = 176, IMAGE_H = 144;
-    private static final int TOP_OFFSET = 19;
-    private static final int BUTTON_W = 16, BUTTON_OFFSET = 7;
+    private static final int TOP_OFFSET = 7;
+    private static final int BUTTON_W = 16, BUTTON_OFFSET = 24;
+
+    private List<Map.Entry<Entry<Holder<Enchantment>>, Boolean>> list = Collections.emptyList();
+    private float scrollOffs = 0;
+    int ticksToUpdate = 0;
     public TEScreen() {
         super(TITLE);
     }
@@ -55,96 +59,114 @@ public class TEScreen extends Screen {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
-        int i = 0;
-        boolean tooltip = false;
-        for(var entry : enchantmentsEntrySet()) {
+        int j = 0;
+        int c = (int) (scrollOffs * (list.size() - 10));
+        for(int i = Math.max(0, c); i < list.size(); i++) {
+            if(j > 9) break;
+            j++;
+            var entry = list.get(i);
             var subEntry = entry.getKey();
             var holder = subEntry.getKey();
             boolean enabled = entry.getValue();
             int level = subEntry.getIntValue();
             assert Minecraft.getInstance().player != null;
             int group = Minecraft.getInstance().player.getMainHandItem().getOrDefault(RegisterDataComponents.ENCHANTMENT_GROUPS, ItemEnchantments.EMPTY).getLevel(holder);
-            if(level > 0) {
-                var comp = Enchantment.getFullname(holder, level).plainCopy().withStyle(ChatFormatting.WHITE);
-                boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + i*12 + TOP_OFFSET && mouseY < topPos + i*12 + 8 + TOP_OFFSET;
-                guiGraphics.drawString(this.font, comp, leftPos + 8, topPos + i*12 + TOP_OFFSET, -1);
-                guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 130, topPos + i*12 + TOP_OFFSET, -1);
-                if(holder.is(TEConstants.WHITELIST) || (!holder.is(EnchantmentTags.CURSE) && !holder.is(TEConstants.BLACKLIST)))
-                    guiGraphics.blitSprite(
-                            RenderType::guiTextured,
-                            BUTTON,
-                            32, 16,
-                            (hovered ? BUTTON_W : 0),
-                            enabled ? 0 : 8,
-                            leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET,
-                            topPos + i*12 + TOP_OFFSET,
-                            BUTTON_W, 8
-                    );
-                tooltip |= mouseX >= leftPos + 130 && mouseX < leftPos + 152 && mouseY >= topPos + i*12 + TOP_OFFSET -2 && mouseY < topPos + i*12 + TOP_OFFSET + 10;
-            }
-            i++;
+            if(level <= 0) continue;
+            var comp = Enchantment.getFullname(holder, level).plainCopy().withStyle(ChatFormatting.WHITE);
+            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + j*12 + TOP_OFFSET && mouseY < topPos + j*12 + 8 + TOP_OFFSET;
+            guiGraphics.drawString(this.font, comp, leftPos + 9, topPos + j*12 + TOP_OFFSET, -1);
+            guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 120, topPos + j*12 + TOP_OFFSET, -1);
+            if(holder.is(TEConstants.WHITELIST) || !holder.is(TEConstants.BLACKLIST))
+                guiGraphics.blitSprite(
+                        RenderType::guiTextured,
+                        BUTTON,
+                        32, 16,
+                        (hovered ? BUTTON_W : 0),
+                        enabled ? 0 : 8,
+                        leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET,
+                        topPos + j*12 + TOP_OFFSET,
+                        BUTTON_W, 8
+                );
         }
-        if(tooltip) guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+        if(mouseX >= leftPos + 112 && mouseX < leftPos + 134 && mouseY >= topPos + 17 && mouseY < topPos + 137) guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+        int k = (int)(scrollOffs * 105);
+        guiGraphics.blitSprite(RenderType::guiTextured, SCROLLER, leftPos+156, topPos+18+k, 12, 13);
     }
 
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
-        int i = 0;
-        for(var entry : enchantmentsEntrySet()) {
+        int j = 0;
+        int c = (int) (scrollOffs * (list.size() - 10));
+        for(int i = Math.max(0, c); i < list.size(); i++) {
+            if(j > 9) break;
+            j++;
+            var entry = list.get(i);
             var subEntry = entry.getKey();
             var holder = subEntry.getKey();
             int level = subEntry.getIntValue();
-            if(level > 0) {
-                boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + i*12 + TOP_OFFSET && mouseY < topPos + i*12 + 8 + TOP_OFFSET;
-                i++;
-                if(!holder.is(TEConstants.WHITELIST) && (holder.is(EnchantmentTags.CURSE) || holder.is(TEConstants.BLACKLIST))) continue;
-                if(!hovered) continue;
-                var level1 = Minecraft.getInstance().level;
-                if(level1 == null) continue;
-                var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-                ResourceLocation id = access.getKey(holder.value());
-                if(id == null) continue;
-                TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(List.of(id), EquipmentSlot.MAINHAND));
-                return true;
-            }
+            if(level <= 0) continue;
+            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + j*12 + TOP_OFFSET && mouseY < topPos + j*12 + 8 + TOP_OFFSET;
+            if(!holder.is(TEConstants.WHITELIST) && holder.is(TEConstants.BLACKLIST)) continue;
+            if(!hovered) continue;
+            var level1 = Minecraft.getInstance().level;
+            if(level1 == null) continue;
+            var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            ResourceLocation id = access.getKey(holder.value());
+            if(id == null) continue;
+            TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(List.of(id), EquipmentSlot.MAINHAND));
+            return true;
         }
         return super.mouseClicked(mouseX, mouseY, button);
     }
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if(super.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) return true;
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
-        int i = 0;
-        for(var entry : enchantmentsEntrySet()) {
+
+        int j = 0;
+        int c = (int) (scrollOffs * (list.size() - 10));
+        for(int i = Math.max(0, c); i < list.size(); i++) {
+            if(j > 9) break;
+            j++;
+            var entry = list.get(i);
             var subEntry = entry.getKey();
             var holder = subEntry.getKey();
             int level = subEntry.getIntValue();
             assert Minecraft.getInstance().player != null;
             int group = Minecraft.getInstance().player.getMainHandItem().getOrDefault(RegisterDataComponents.ENCHANTMENT_GROUPS, ItemEnchantments.EMPTY).getLevel(holder);
-            if(level > 0) {
-                boolean hovered = mouseX >= leftPos + 130 && mouseX < leftPos + 152 && mouseY >= topPos + i*12 + TOP_OFFSET -2 && mouseY < topPos + i*12 + TOP_OFFSET + 10;
-                i++;
-                if(!hovered) continue;
-                var level1 = Minecraft.getInstance().level;
-                if(level1 == null) continue;
-                var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-                ResourceLocation id = access.getKey(holder.value());
-                if(id == null) continue;
-                TEServices.PLATFORM.send2S(new ChangeGroupPacket(id, (int) Math.clamp(group + scrollY, 0, 9)));
-                return true;
-            }
+            if(level <= 0) continue;
+            boolean hovered = mouseX >= leftPos + 112 && mouseX < leftPos + 134 && mouseY >= topPos + j*12 + TOP_OFFSET -2 && mouseY < topPos + j*12 + TOP_OFFSET + 10;
+            if(!hovered) continue;
+            var level1 = Minecraft.getInstance().level;
+            if(level1 == null) continue;
+            var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
+            ResourceLocation id = access.getKey(holder.value());
+            if(id == null) continue;
+            TEServices.PLATFORM.send2S(new ChangeGroupPacket(id, (int) Math.clamp(group + scrollY, 0, 9)));
+            return true;
         }
-        return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        int k = list.size() - 10;
+        float f = (float)scrollY / k;
+        scrollOffs = Mth.clamp(scrollOffs-f, 0, 1);
+        return true;
     }
 
-    private Set<Map.Entry<Entry<Holder<Enchantment>>, Boolean>> enchantmentsEntrySet() {
+    @Override
+    public void tick() {
+        reload();
+        super.tick();
+    }
+
+    private void reload() {
         var player = Minecraft.getInstance().player;
         if(player == null) {
             this.onClose();
-            return new HashSet<>();
+            list = Collections.emptyList();
+            return;
         }
         var stack = player.getMainHandItem();
         if(stack.isEmpty()) this.onClose();
@@ -153,10 +175,10 @@ public class TEScreen extends Screen {
         final Map<Entry<Holder<Enchantment>>, Boolean> map = new HashMap<>();
         enabled.entrySet().forEach(e -> map.put(e, true));
         disabled.entrySet().forEach(e -> map.put(e, false));
-        return map.entrySet()
+        this.list = map.entrySet()
                 .stream()
                 .sorted(Comparator.comparing(e -> e.getKey().getKey().getRegisteredName()))
-                .collect(Collectors.toCollection(LinkedHashSet::new));
+                .toList();
     }
 
     @Override
