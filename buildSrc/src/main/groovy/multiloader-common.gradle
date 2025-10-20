@@ -119,7 +119,6 @@ processResources {
 
 publishing {
     publications {
-        //noinspection GroovyAssignabilityCheck
         register('mavenJava', MavenPublication) {
             artifactId base.archivesName.get()
             from components.java
@@ -127,7 +126,7 @@ publishing {
     }
     repositories {
         maven {
-            url System.getenv('local_maven_url')
+            url = uri("${project.projectDir}/repo")
         }
     }
 }
