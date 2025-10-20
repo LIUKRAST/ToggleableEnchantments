@@ -40,8 +40,7 @@ public class TEScreen extends Screen {
     private static final int BUTTON_W = 16, BUTTON_OFFSET = 24;
 
     private List<Map.Entry<Entry<Holder<Enchantment>>, Boolean>> list = Collections.emptyList();
-    private float scrollOffs = 0;
-    int ticksToUpdate = 0;
+    private int scrollOffs = 0;
     public TEScreen() {
         super(TITLE);
     }
@@ -60,8 +59,7 @@ public class TEScreen extends Screen {
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
         int j = 0;
-        int c = (int) (scrollOffs * (list.size() - 10));
-        for(int i = Math.max(0, c); i < list.size(); i++) {
+        for(int i = Math.max(0, scrollOffs); i < list.size(); i++) {
             if(j > 9) break;
             j++;
             var entry = list.get(i);
@@ -73,23 +71,23 @@ public class TEScreen extends Screen {
             int group = Minecraft.getInstance().player.getMainHandItem().getOrDefault(RegisterDataComponents.ENCHANTMENT_GROUPS, ItemEnchantments.EMPTY).getLevel(holder);
             if(level <= 0) continue;
             var comp = Enchantment.getFullname(holder, level).plainCopy().withStyle(ChatFormatting.WHITE);
-            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + j*12 + TOP_OFFSET && mouseY < topPos + j*12 + 8 + TOP_OFFSET;
+            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + IMAGE_W - BUTTON_OFFSET && mouseY >= topPos + j*12 + TOP_OFFSET && mouseY < topPos + j*12 + 8 + TOP_OFFSET;
             guiGraphics.drawString(this.font, comp, leftPos + 9, topPos + j*12 + TOP_OFFSET, -1);
             guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 120, topPos + j*12 + TOP_OFFSET, -1);
-            if(holder.is(TEConstants.WHITELIST) || !holder.is(TEConstants.BLACKLIST))
-                guiGraphics.blitSprite(
-                        RenderType::guiTextured,
-                        BUTTON,
-                        32, 16,
-                        (hovered ? BUTTON_W : 0),
-                        enabled ? 0 : 8,
-                        leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET,
-                        topPos + j*12 + TOP_OFFSET,
-                        BUTTON_W, 8
-                );
+            if(!holder.is(TEConstants.WHITELIST) && holder.is(TEConstants.BLACKLIST)) continue;
+            guiGraphics.blitSprite(
+                    RenderType::guiTextured,
+                    BUTTON,
+                    32, 16,
+                    (hovered ? BUTTON_W : 0),
+                    enabled ? 0 : 8,
+                    leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET,
+                    topPos + j*12 + TOP_OFFSET,
+                    BUTTON_W, 8
+            );
         }
         if(mouseX >= leftPos + 112 && mouseX < leftPos + 134 && mouseY >= topPos + 17 && mouseY < topPos + 137) guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
-        int k = (int)(scrollOffs * 105);
+        int k = (int)(((float)scrollOffs/Math.max(list.size()-10, 1)) * 105);
         guiGraphics.blitSprite(RenderType::guiTextured, SCROLLER, leftPos+156, topPos+18+k, 12, 13);
     }
 
@@ -98,8 +96,7 @@ public class TEScreen extends Screen {
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
         int j = 0;
-        int c = (int) (scrollOffs * (list.size() - 10));
-        for(int i = Math.max(0, c); i < list.size(); i++) {
+        for(int i = Math.max(0, scrollOffs); i < list.size(); i++) {
             if(j > 9) break;
             j++;
             var entry = list.get(i);
@@ -128,8 +125,7 @@ public class TEScreen extends Screen {
         int topPos = (this.height-IMAGE_H)>>1;
 
         int j = 0;
-        int c = (int) (scrollOffs * (list.size() - 10));
-        for(int i = Math.max(0, c); i < list.size(); i++) {
+        for(int i = Math.max(0, scrollOffs); i < list.size(); i++) {
             if(j > 9) break;
             j++;
             var entry = list.get(i);
@@ -149,9 +145,7 @@ public class TEScreen extends Screen {
             TEServices.PLATFORM.send2S(new ChangeGroupPacket(id, (int) Math.clamp(group + scrollY, 0, 9)));
             return true;
         }
-        int k = list.size() - 10;
-        float f = (float)scrollY / k;
-        scrollOffs = Mth.clamp(scrollOffs-f, 0, 1);
+        scrollOffs = (int) Mth.clamp(scrollOffs-scrollY, 0, Math.max(0, list.size()-10));
         return true;
     }
 
