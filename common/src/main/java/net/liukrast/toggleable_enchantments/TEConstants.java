@@ -3,8 +3,10 @@ package net.liukrast.toggleable_enchantments;
 import net.liukrast.toggleable_enchantments.registry.RegisterDataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -20,6 +22,8 @@ public class TEConstants {
     public static final String MOD_ID = "toggleable_enchantments";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final String PACKET_VERSION = "1.0.1";
+    public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
+    public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
 
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);

@@ -13,6 +13,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
@@ -53,6 +54,7 @@ public class TEScreen extends Screen {
         int leftPos = (this.width-IMAGE_W)>>1;
         int topPos = (this.height-IMAGE_H)>>1;
         int i = 0;
+        boolean tooltip = false;
         for(var entry : enchantmentsEntrySet()) {
             var subEntry = entry.getKey();
             var holder = subEntry.getKey();
@@ -65,23 +67,13 @@ public class TEScreen extends Screen {
                 boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + i*12 + TOP_OFFSET && mouseY < topPos + i*12 + 8 + TOP_OFFSET;
                 guiGraphics.drawString(this.font, comp, leftPos + 8, topPos + i*12 + TOP_OFFSET, -1);
                 guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 130, topPos + i*12 + TOP_OFFSET, -1);
-                guiGraphics.blit(TEXTURE, leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET, topPos + i*12 + TOP_OFFSET, 176 + (hovered ? BUTTON_W : 0), enabled ? 0 : 8, BUTTON_W, 8);
+                if(holder.is(TEConstants.WHITELIST) || (!holder.is(EnchantmentTags.CURSE) && !holder.is(TEConstants.BLACKLIST)))
+                    guiGraphics.blit(TEXTURE, leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET, topPos + i*12 + TOP_OFFSET, 176 + (hovered ? BUTTON_W : 0), enabled ? 0 : 8, BUTTON_W, 8);
+                tooltip |= mouseX >= leftPos + 130 && mouseX < leftPos + 152 && mouseY >= topPos + i*12 + TOP_OFFSET -2 && mouseY < topPos + i*12 + TOP_OFFSET + 10;
             }
             i++;
         }
-        i = 0;
-        for(var entry : enchantmentsEntrySet()) {
-            var subEntry = entry.getKey();
-            int level = subEntry.getIntValue();
-            assert Minecraft.getInstance().player != null;
-            if(level > 0) {
-                boolean hovered = mouseX >= leftPos + 130 && mouseX < leftPos + 152 && mouseY >= topPos + i*12 + TOP_OFFSET -2 && mouseY < topPos + i*12 + TOP_OFFSET + 10;
-                if(hovered) {
-                    guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
-                }
-            }
-            i++;
-        }
+        if (tooltip) guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
     }
 
     @Override
@@ -96,6 +88,7 @@ public class TEScreen extends Screen {
             if(level > 0) {
                 boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + i*12 + TOP_OFFSET && mouseY < topPos + i*12 + 8 + TOP_OFFSET;
                 i++;
+                if((holder.is(EnchantmentTags.CURSE) || holder.is(TEConstants.BLACKLIST)) && !holder.is(TEConstants.WHITELIST)) continue;
                 if(!hovered) continue;
                 var level1 = Minecraft.getInstance().level;
                 if(level1 == null) continue;
