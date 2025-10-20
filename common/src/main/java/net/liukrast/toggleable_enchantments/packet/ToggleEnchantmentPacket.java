@@ -8,7 +8,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -55,7 +54,7 @@ public record ToggleEnchantmentPacket(List<ResourceLocation> enchantment, Equipm
 
     public static void handle(ToggleEnchantmentPacket packet, Player ctx) {
         var enchantRegistry = ctx.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
-        var list = packet.enchantment.stream().map(e -> ((Holder<Enchantment>)enchantRegistry.getHolderOrThrow(ResourceKey.create(Registries.ENCHANTMENT, e)))).filter(holder -> holder.is(TEConstants.WHITELIST) || (!holder.is(EnchantmentTags.CURSE) && !holder.is(TEConstants.BLACKLIST))).toList();
+        var list = packet.enchantment.stream().map(e -> ((Holder<Enchantment>)enchantRegistry.getHolderOrThrow(ResourceKey.create(Registries.ENCHANTMENT, e)))).filter(holder -> holder.is(TEConstants.WHITELIST) || !holder.is(TEConstants.BLACKLIST)).toList();
         ItemStack stack = ctx.getItemBySlot(packet.slot);
         if(!list.isEmpty()) TEConstants.toggleEnchantments(stack, list, ctx);
     }
