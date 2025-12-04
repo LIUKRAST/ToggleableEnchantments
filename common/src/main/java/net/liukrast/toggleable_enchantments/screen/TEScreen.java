@@ -9,6 +9,9 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
+import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
@@ -50,7 +53,7 @@ public class TEScreen extends Screen {
         super.renderBackground(guiGraphics, mouseX, mouseY, partialTick);
         int leftPos = (this.width- IMAGE_W)>>1;
         int topPos = (this.height- IMAGE_H)>>1;
-        guiGraphics.blit(RenderType::guiTextured, TEXTURE, leftPos, topPos, 0, 0, IMAGE_W, IMAGE_H, 256, 256);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, TEXTURE, leftPos, topPos, 0, 0, IMAGE_W, IMAGE_H, 256, 256);
     }
 
     @Override
@@ -76,7 +79,7 @@ public class TEScreen extends Screen {
             guiGraphics.drawString(this.font, group == 0 ? "-" : String.valueOf(group), leftPos + 120, topPos + j*12 + TOP_OFFSET, -1);
             if(!holder.is(TEConstants.WHITELIST) && holder.is(TEConstants.BLACKLIST)) continue;
             guiGraphics.blitSprite(
-                    RenderType::guiTextured,
+                    RenderPipelines.GUI_TEXTURED,
                     BUTTON,
                     32, 16,
                     (hovered ? BUTTON_W : 0),
@@ -86,9 +89,23 @@ public class TEScreen extends Screen {
                     BUTTON_W, 8
             );
         }
-        if(mouseX >= leftPos + 112 && mouseX < leftPos + 134 && mouseY >= topPos + 17 && mouseY < topPos + 137) guiGraphics.renderTooltip(this.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
-        int k = (int)(((float)scrollOffs/Math.max(list.size()-10, 1)) * 105);
-        guiGraphics.blitSprite(RenderType::guiTextured, SCROLLER, leftPos+156, topPos+18+k, 12, 13);
+
+
+        int k = (int)(((float)scrollOffs / Math.max(list.size() - 10, 1)) * 105);
+        guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER, leftPos + 156, topPos + 18 + k, 12, 13);
+
+        if(mouseX >= leftPos + 112 && mouseX < leftPos + 134 && mouseY >= topPos + 17 && mouseY < topPos + 137) {
+            guiGraphics.renderTooltip(
+                    this.font,
+                    TOOLTIP.stream()
+                            .map(c -> ClientTooltipComponent.create(c.getVisualOrderText()))
+                            .toList(),
+                    mouseX,
+                    mouseY,
+                    DefaultTooltipPositioner.INSTANCE,
+                    null
+            );
+        }
     }
 
     @Override
