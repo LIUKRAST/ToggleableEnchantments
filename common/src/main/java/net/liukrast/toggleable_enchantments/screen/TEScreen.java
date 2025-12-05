@@ -11,6 +11,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
@@ -91,9 +92,13 @@ public class TEScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int leftPos = (this.width-IMAGE_W)>>1;
-        int topPos = (this.height-IMAGE_H)>>1;
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        int button = event.button();
+
+        int leftPos = (this.width - IMAGE_W) >> 1;
+        int topPos = (this.height - IMAGE_H) >> 1;
         int j = 0;
         for(int i = (int) Math.max(0, scrollOffs); i < list.size(); i++) {
             if(j > 9) break;
@@ -102,19 +107,25 @@ public class TEScreen extends Screen {
             var subEntry = entry.getKey();
             var holder = subEntry.getKey();
             int level = subEntry.getIntValue();
-            if(level <= 0) continue;
-            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET && mouseX < leftPos + 176 - BUTTON_OFFSET && mouseY >= topPos + j*12 + TOP_OFFSET && mouseY < topPos + j*12 + 8 + TOP_OFFSET;
-            if(!holder.is(TEConstants.WHITELIST) && holder.is(TEConstants.BLACKLIST)) continue;
-            if(!hovered) continue;
+            if (level <= 0) continue;
+
+            boolean hovered = mouseX >= leftPos + IMAGE_W - BUTTON_W - BUTTON_OFFSET
+                    && mouseX < leftPos + 176 - BUTTON_OFFSET
+                    && mouseY >= topPos + j * 12 + TOP_OFFSET
+                    && mouseY < topPos + j * 12 + 8 + TOP_OFFSET;
+
+            if (!holder.is(TEConstants.WHITELIST) && holder.is(TEConstants.BLACKLIST)) continue;
+            if (!hovered) continue;
             var level1 = Minecraft.getInstance().level;
             if(level1 == null) continue;
             var access = level1.registryAccess().registryOrThrow(Registries.ENCHANTMENT);
             ResourceLocation id = access.getKey(holder.value());
-            if(id == null) continue;
+            if (id == null) continue;
             TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(List.of(id), EquipmentSlot.MAINHAND));
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
