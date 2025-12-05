@@ -22,6 +22,8 @@ public class TEConstants {
     public static final String MOD_ID = "toggleable_enchantments";
     public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
     public static final String PACKET_VERSION = "1.0.1";
+    public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
+    public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
 
     public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
     public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
