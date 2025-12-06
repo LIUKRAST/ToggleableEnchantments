@@ -9,7 +9,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 public class NeoForgePlatformHelper implements IPlatformHelper {
     @Override
     public boolean isClient() {
-        return FMLEnvironment.getDist().isClient();
+        return FMLEnvironment.dist.isClient();
     }
 
     @Override
