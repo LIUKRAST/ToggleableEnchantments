@@ -21,8 +21,9 @@ public class ItemEnchantmentsMixin implements IFlagEnchantment {
     private <T> T toggleable_enchantments$addToTooltip(T t) {
         if(!toggleable_enchantments$disabled) return t;
         Component arg = (Component) t;
-        // noinspection unchecked
-        return (T)Component.literal("❌ ").withStyle(ChatFormatting.RED).append(arg);
+        @SuppressWarnings("all")
+        T returnValue = (T)Component.literal("❌ ").withStyle(ChatFormatting.RED).append(arg);
+        return returnValue;
     }
 
     @Override

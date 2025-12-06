@@ -11,8 +11,8 @@ neoForge {
         accessTransformers.from(at.absolutePath)
     }
     parchment {
-        minecraftVersion = parchment_version.split(":")[0]
-        mappingsVersion = parchment_version.split(":")[1]
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
     }
     runs {
         configureEach {
@@ -21,6 +21,9 @@ neoForge {
         }
         client {
             client()
+        }
+        data {
+            data()
         }
         server {
             server()
@@ -33,6 +36,4 @@ neoForge {
     }
 }
 
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }

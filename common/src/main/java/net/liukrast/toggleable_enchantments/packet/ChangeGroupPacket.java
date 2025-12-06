@@ -2,8 +2,6 @@ package net.liukrast.toggleable_enchantments.packet;
 
 import net.liukrast.toggleable_enchantments.TEConstants;
 import net.liukrast.toggleable_enchantments.registry.RegisterDataComponents;
-import net.minecraft.core.Holder;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -12,7 +10,6 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.lwjgl.system.NonnullDefault;
 
@@ -36,11 +33,11 @@ public record ChangeGroupPacket(ResourceLocation enchantment, int group) impleme
     }
 
     public static void handle(ChangeGroupPacket packet, Player ctx) {
-        Registry<Enchantment> enchantRegistry = ctx.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        Holder.Reference<Enchantment> enchantment = enchantRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, packet.enchantment));
+        var enchantRegistry = ctx.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+        var enchantment = enchantRegistry.getHolderOrThrow(ResourceKey.create(Registries.ENCHANTMENT, packet.enchantment));
         ItemStack stack = ctx.getMainHandItem();
         ItemEnchantments groups = stack.getOrDefault(RegisterDataComponents.ENCHANTMENT_GROUPS, ItemEnchantments.EMPTY);
-        ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(groups);
+        var mutable = new ItemEnchantments.Mutable(groups);
         mutable.set(enchantment, packet.group);
         stack.set(RegisterDataComponents.ENCHANTMENT_GROUPS, mutable.toImmutable());
     }
