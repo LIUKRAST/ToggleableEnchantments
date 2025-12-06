@@ -11,8 +11,8 @@ neoForge {
         accessTransformers.from(at.absolutePath)
     }
     parchment {
-        minecraftVersion = parchment_version.split(":")[0]
-        mappingsVersion = parchment_version.split(":")[1]
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
     }
 }
 
@@ -35,6 +35,7 @@ configurations {
 }
 
 artifacts {
-    add("commonJava", sourceSets.main.java.sourceDirectories.singleFile)
-    add("commonResources", sourceSets.main.resources.sourceDirectories.singleFile)
+    commonJava sourceSets.main.java.sourceDirectories.singleFile
+    commonResources sourceSets.main.resources.sourceDirectories.singleFile
 }
+

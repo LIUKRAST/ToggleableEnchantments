@@ -25,9 +25,6 @@ public class TEConstants {
     public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
     public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
 
-    public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
-    public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
-
     public static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
     }
@@ -61,8 +58,8 @@ public class TEConstants {
         if(fDisabled.isEmpty()) stack.remove(RegisterDataComponents.DISABLED_ENCHANTMENTS);
         else stack.set(RegisterDataComponents.DISABLED_ENCHANTMENTS, fDisabled);
         if(player != null) {
-            if(!enabled1.isEmpty()) player.displayClientMessage(Component.translatable("toggleable_enchantments.enable", String.join(", ", enabled1), stack.getDisplayName()), false);
-            if(!disabled1.isEmpty()) player.displayClientMessage(Component.translatable("toggleable_enchantments.disable", String.join(", ", disabled1), stack.getDisplayName()), false);
+            if(!enabled1.isEmpty()) player.sendSystemMessage(Component.translatable("toggleable_enchantments.enable", String.join(", ", enabled1), stack.getDisplayName()));
+            if(!disabled1.isEmpty()) player.sendSystemMessage(Component.translatable("toggleable_enchantments.disable", String.join(", ", disabled1), stack.getDisplayName()));
         }
     }
 }
