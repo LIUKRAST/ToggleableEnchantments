@@ -14,5 +14,5 @@
   "container.toggleable_enchantments": "Toggle Enchantments",
   "container.toggleable_enchantments.hotkey_group": "Hotkey Group",
   "container.toggleable_enchantments.hotkey_group.help": "§7Scroll to Change",
-  "key.category.toggleable_enchantments.main": "Toggleable Enchantments"
+  "key.categories.toggleable_enchantments": "Toggleable Enchantments"
 }
