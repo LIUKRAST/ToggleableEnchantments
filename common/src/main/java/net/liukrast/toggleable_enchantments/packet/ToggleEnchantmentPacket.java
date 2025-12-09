@@ -53,8 +53,8 @@ public record ToggleEnchantmentPacket(List<Identifier> enchantment, EquipmentSlo
     }
 
     public static void handle(ToggleEnchantmentPacket packet, Player ctx) {
-        var enchantRegistry = ctx.level().registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-        var list = packet.enchantment.stream().map(e -> ((Holder<Enchantment>)enchantRegistry.getOrThrow(ResourceKey.create(Registries.ENCHANTMENT, e)))).filter(holder -> holder.is(TEConstants.WHITELIST) || !holder.is(TEConstants.BLACKLIST)).toList();
+        var enchantRegistry = ctx.level().registryAccess().registryOrThrow(Registries.ENCHANTMENT);
+        var list = packet.enchantment.stream().map(e -> ((Holder<Enchantment>)enchantRegistry.getHolderOrThrow(ResourceKey.create(Registries.ENCHANTMENT, e)))).filter(holder -> holder.is(TEConstants.WHITELIST) || !holder.is(TEConstants.BLACKLIST)).toList();
         ItemStack stack = ctx.getItemBySlot(packet.slot);
         if(!list.isEmpty()) TEConstants.toggleEnchantments(stack, list, ctx);
     }
