@@ -5,7 +5,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -26,8 +26,8 @@ public class TEConstants {
     public static final TagKey<Enchantment> BLACKLIST = TagKey.create(Registries.ENCHANTMENT, id("blacklist"));
     public static final TagKey<Enchantment> WHITELIST = TagKey.create(Registries.ENCHANTMENT, id("whitelist"));
 
-    public static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MOD_ID, path);
+    public static Identifier id(String path) {
+        return Identifier.fromNamespaceAndPath(MOD_ID, path);
     }
 
     public static void toggleEnchantments(ItemStack stack, List<Holder<Enchantment>> enchantments, @Nullable Player player) {

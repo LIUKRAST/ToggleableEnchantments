@@ -3,7 +3,6 @@ package net.liukrast.toggleable_enchantments.registry;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.liukrast.toggleable_enchantments.TEConstants;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.resources.ResourceLocation;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.*;

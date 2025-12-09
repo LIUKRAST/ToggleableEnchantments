@@ -13,11 +13,10 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -29,9 +28,9 @@ import java.util.*;
 
 @NonnullDefault
 public class TEScreen extends Screen {
-    private static final ResourceLocation TEXTURE = TEConstants.id("textures/gui/toggleable_enchantments.png");
-    private static final ResourceLocation BUTTON = TEConstants.id("toggle_button");
-    private static final ResourceLocation SCROLLER = TEConstants.id("scroller");
+    private static final Identifier TEXTURE = TEConstants.id("textures/gui/toggleable_enchantments.png");
+    private static final Identifier BUTTON = TEConstants.id("toggle_button");
+    private static final Identifier SCROLLER = TEConstants.id("scroller");
     public static final Component TITLE = Component.translatable("container.toggleable_enchantments");
 
     private static final List<Component> TOOLTIP = Arrays.asList(new Component[]{
@@ -137,7 +136,7 @@ public class TEScreen extends Screen {
             var level1 = Minecraft.getInstance().level;
             if (level1 == null) continue;
             var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-            ResourceLocation id = access.getKey(holder.value());
+            Identifier id = access.getKey(holder.value());
             if (id == null) continue;
             TEServices.PLATFORM.send2S(new ToggleEnchantmentPacket(List.of(id), EquipmentSlot.MAINHAND));
             return true;
@@ -168,7 +167,7 @@ public class TEScreen extends Screen {
             var level1 = Minecraft.getInstance().level;
             if(level1 == null) continue;
             var access = level1.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-            ResourceLocation id = access.getKey(holder.value());
+            Identifier id = access.getKey(holder.value());
             if(id == null) continue;
             TEServices.PLATFORM.send2S(new ChangeGroupPacket(id, (int) Math.clamp(group + scrollY, 0, 9)));
             return true;
