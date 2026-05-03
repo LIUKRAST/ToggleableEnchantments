@@ -10,6 +10,10 @@ neoForge {
     if (at.exists()) {
         accessTransformers.from(at.absolutePath)
     }
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
     runs {
         configureEach {
             systemProperty('neoforge.enabledGameTestNamespaces', mod_id)
@@ -17,6 +21,9 @@ neoForge {
         }
         client {
             client()
+        }
+        data {
+            data()
         }
         server {
             server()
@@ -29,6 +36,4 @@ neoForge {
     }
 }
 
-sourceSets.main.resources {
-    srcDir 'src/generated/resources'
-}
+sourceSets.main.resources { srcDir 'src/generated/resources' }

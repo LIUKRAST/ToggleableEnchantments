@@ -1,10 +1,24 @@
-.gradle
-.idea
-build
-gradlew.bat
-gradlew
+# eclipse
+bin
+*.launch
+.settings
+.metadata
+.classpath
+.project
 
-*/build/
-*/run/
-*/runs/
-*/repo/
+# idea
+out
+*.ipr
+*.iws
+*.iml
+.idea/*
+!.idea/scopes
+
+# gradle
+build
+.gradle
+
+# other
+eclipse
+run
+runs
